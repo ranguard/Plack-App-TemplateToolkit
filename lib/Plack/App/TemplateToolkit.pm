@@ -171,25 +171,25 @@ Which file to use as a directory index, defaults to index.html
 =item pre_process
 
 Optional, supply a file to pre process before serving each html file
-(see C<Template> configuration PRE_PROCESS)
+(see L<Template> configuration PRE_PROCESS)
 
 =item process
 
-Optional, supply a file to process (see C<Template> configuration PROCESS)
+Optional, supply a file to process (see L<Template> configuration PROCESS)
 
 =item eval_perl
 
 Default to 0, this option lets you run perl blocks in your
 templates - I would strongly recommend NOT using this.
-(see C<Template> configuration EVAL_PERL)
+(see L<Template> configuration EVAL_PERL)
 
 =item interpolate
 
-Default to 0, see C<Template> configuration INTERPOLATE
+Default to 0, see L<Template> configuration INTERPOLATE
 
 =item post_chomp
 
-Defaults to 1, see C<Template> configuration POST_CHOMP
+Defaults to 1, see L<Template> configuration POST_CHOMP
 
 =back
 
