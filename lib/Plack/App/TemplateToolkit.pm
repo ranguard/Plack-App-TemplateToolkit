@@ -1,13 +1,19 @@
 package Plack::App::TemplateToolkit;
+
 use strict;
 use warnings;
+use 5.008_001;
+
+our $VERSION = 0.05;
 
 use parent qw( Plack::Component );
 use Plack::Request 0.9901;
+use Plack::MIME;
 use Template 2;
 
 use Plack::Util::Accessor
-    qw( root interpolate post_chomp dir_index path extension content_type tt eval_perl pre_process process);
+    qw( root interpolate post_chomp dir_index path extension content_type
+    default_type tt eval_perl pre_process process);
 
 sub prepare_app {
     my ($self) = @_;
@@ -15,7 +21,7 @@ sub prepare_app {
     die "No root supplied" unless $self->root();
 
     $self->dir_index('index.html')   unless $self->dir_index();
-    $self->content_type('text/html') unless $self->content_type();
+    $self->default_type('text/html') unless $self->default_type();
     $self->interpolate(0)            unless defined $self->interpolate();
     $self->eval_perl(0)              unless defined $self->eval_perl();
     $self->post_chomp(1)             unless defined $self->post_chomp();
@@ -46,18 +52,11 @@ sub call {
 }
 
 sub _handle_tt {
-    my ( $self, $env ) = @_;
+    my $self = shift;
+    my $req  = Plack::Request->new(shift);
 
-    my $path = $env->{PATH_INFO};
-
-    if ( $path !~ /\.\w{1,6}$/ ) {
-
-        # Use this regex instead of -e as $self->root can be a list ref
-        # TT will sort it out,
-
-        # No file extension
-        $path .= $self->dir_index;
-    }
+    my $path = $req->path;
+    $path .= $self->dir_index if $path =~ /\/$/;
 
     if ( my $extension = $self->extension() ) {
         return 0 unless $path =~ /${extension}$/;
@@ -65,31 +64,27 @@ sub _handle_tt {
 
     my $tt = $self->tt();
 
-    my $req = Plack::Request->new($env);
-
     my $vars = { params => $req->query_parameters(), };
 
     my $content;
     $path =~ s{^/}{};    # Do not want to enable absolute paths
 
     if ( $tt->process( $path, $vars, \$content ) ) {
-        return [
-            '200', [ 'Content-Type' => $self->content_type() ],
-            [$content]
-        ];
+        my $type = $self->content_type || do {
+            Plack::MIME->mime_type($1) if $path =~ /(\.\w{1,6})$/;
+            }
+            || $self->default_type;
+        return [ 200, [ 'Content-Type' => $type ], [$content] ];
     } else {
         my $error = $tt->error->as_string();
+        my $type = $self->content_type || $self->default_type;
+
         if ( $error =~ /file error .+ not found/ ) {
-            return [
-                '404', [ 'Content-Type' => $self->content_type() ],
-                [$error]
-            ];
+            return [ '404', [ 'Content-Type' => $type ], [$error] ];
         } else {
             warn $error;
-            return [
-                '500', [ 'Content-Type' => $self->content_type() ],
-                [$error]
-            ];
+            return [ '500', [ 'Content-Type' => $type ], [$error] ];
+
         }
     }
 }
@@ -154,7 +149,7 @@ Plack::Middleware which you will find on CPAN.
 
 =item root
 
-Required, root where templates live, e.g. docroot, this can be
+Required, root where templates live, e.g. INCLUDE_PATH. This can be
 an array reference or a string.
 
 =item extension
@@ -163,7 +158,13 @@ Limit to only files with this extension.
 
 =item content_type
 
-Specify the Content-Type header you want returned, defaults to text/html
+Specify the Content-Type header you want returned. If not specified, the
+content type will be guessed by L<Plack::MIME> based on the file extension
+with default_type as default.
+
+=item default_type
+
+Specify the default Content-Type header. Defaults to to text/html.
 
 =item dir_index
 
@@ -197,5 +198,10 @@ Defaults to 1, see L<Template> configuration POST_CHOMP
 =head1 SEE ALSO
 
 L<Plack>, L<Template>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =cut
