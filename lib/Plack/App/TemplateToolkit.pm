@@ -79,12 +79,13 @@ sub _handle_tt {
         ];
     } else {
         my $error = $tt->error->as_string();
-        if ( $error =~ /not found/ ) {
+        if ( $error =~ /file error .+ not found/ ) {
             return [
                 '404', [ 'Content-Type' => $self->content_type() ],
                 [$error]
             ];
         } else {
+            warn $error;
             return [
                 '500', [ 'Content-Type' => $self->content_type() ],
                 [$error]
