@@ -89,15 +89,21 @@ sub _handle_tt {
 
 1;
 
+# ABSTRACT: DEPRECIATED use Plack::Middleware::TemplateToolkit
+
 __END__
 
 =head1 NAME
 
 Plack::App::TemplateToolkit DEPRECIATED use Plack::Middleware::TemplateToolkit
 
+=head1 SYNOPSIS
+
+  Use Plack::Middleware::TemplateToolkit instead of this.
+
 =head1 DESCRIPTION
 
-Plack::App::TemplateToolkit DEPRECIATED use Plack::Middleware::TemplateToolkit
+Use Plack::Middleware::TemplateToolkit instead of this package.
 
 =head1 SEE ALSO
 
