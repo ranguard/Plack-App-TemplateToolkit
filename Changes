@@ -1,8 +1,10 @@
 # Change file for Plack::Middleware::TemplateToolkit
 
+0.07
+    DEPRECIATE - use Plack::Middleware::TemplateToolkit
+
 0.06
     Merge 0a851e76a22cd40591a0 from nichtich
-    - 
 
 0.05
     Add POD for process option
