@@ -1,5 +1,8 @@
 # Change file for Plack::Middleware::TemplateToolkit
 
+0.06
+    DEPRECIATED use Plack::Middleware::TemplateToolkit instead
+
 0.05
     Add POD for process option
     Add interpolate and post_chomp options
